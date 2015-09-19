@@ -13,8 +13,8 @@ public class MCTSAI : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        tn = new TreeNode(board.boardState, board.lastPos, board.pieceNumber); //create a new TreeNode
-        iterationNumber = 1;
+        tn = new TreeNode(new State(board.boardState, board.lastPos, board.pieceNumber)); //create a new TreeNode
+        iterationNumber = 50000;
     }
 
     // Update is called once per frame
@@ -27,7 +27,7 @@ public class MCTSAI : MonoBehaviour
             {
                 foreach (TreeNode child in tn.children)
                 {
-                    if (child.lastPos.isEqual(board.lastPos))
+                    if (child.state.lastPos.isEqual(board.lastPos))
                     {
                         tn = child; //use the child as current tree
                         flag = true;
@@ -39,7 +39,7 @@ public class MCTSAI : MonoBehaviour
             }
             else
             {
-                tn = new TreeNode(board.boardState, board.lastPos, board.pieceNumber); //create a new TreeNode
+                tn = new TreeNode(new State(board.boardState, board.lastPos, board.pieceNumber)); //create a new TreeNode
             }
 
             var watch = Stopwatch.StartNew();
@@ -52,7 +52,7 @@ public class MCTSAI : MonoBehaviour
             UnityEngine.Debug.Log("time elapsed for iterateMCTS() = " + elapsedMs + " ms");
 
             tn = tn.select();
-            board.selectSquare(tn.lastPos.x, tn.lastPos.y);
+            board.selectSquare(tn.state.lastPos.x, tn.state.lastPos.y);
         }
     }
 

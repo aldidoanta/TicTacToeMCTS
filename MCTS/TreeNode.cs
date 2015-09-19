@@ -6,40 +6,19 @@ public class TreeNode
 {
     static System.Random r = new System.Random();
     static double epsilon = 1e-6;
-    public static int maxBranch = 9;
 
     public List<TreeNode> children;
     double nVisits, totValue;
-    public int[][] boardState;
-    public Point lastPos;
-    public int stateResult;
-    public int pieceNumber; //number of pieces placed on the board -- removes the need to count manually
 
-    public TreeNode(int[][] prevBoardState, Point lastPos, int pieceNumber)
+    public State state;
+
+    public TreeNode(State state)
     {
         children = new List<TreeNode>();
         nVisits = 0;
         totValue = 0;
-        this.lastPos = lastPos;
-        stateResult = Board.RESULT_NONE;
-        this.pieceNumber = pieceNumber;
 
-        if (prevBoardState != null) //no previous moves
-        {
-            boardState = deepcloneArray(prevBoardState);
-        }
-        else
-        {
-            boardState = new int[Board.BOARD_SIZE][];
-            for (int i = 0; i < boardState.Length; i++)
-            {
-                boardState[i] = new int[Board.BOARD_SIZE];
-                for (int j = 0; j < boardState[i].Length; j++)
-                {
-                    boardState[i][j] = Square.SQUARE_EMPTY;
-                }
-            }
-        }
+        this.state = state;
     }
 
     public void iterateMCTS()
@@ -53,7 +32,7 @@ public class TreeNode
 
             visited.AddLast(cur);
         }
-        if (cur.stateResult == Board.RESULT_NONE)
+        if (cur.state.stateResult == Board.RESULT_NONE)
         {
             cur.expand(); //2. EXPANSION
             TreeNode newNode = cur.select();
@@ -69,25 +48,25 @@ public class TreeNode
 
     public void expand()
     {
-        List<Point> childrenMoves = listPossibleMoves(boardState, lastPos);
+        List<Point> childrenMoves = listPossibleMoves(state.boardState, state.lastPos);
 
         //Apply one move for each expansion child
         foreach (Point move in childrenMoves)
         {
-            TreeNode childNode = new TreeNode(boardState, lastPos, pieceNumber);
-            if (lastPos == null || childNode.boardState[lastPos.x][lastPos.y] == Square.SQUARE_O)
+            TreeNode childNode = new TreeNode(new State(state.boardState, state.lastPos, state.pieceNumber));
+            if (state.lastPos == null || childNode.state.boardState[state.lastPos.x][state.lastPos.y] == Square.SQUARE_O)
             {
-                childNode.boardState[move.x][move.y] = Square.SQUARE_X;
-                childNode.lastPos = new Point(move.x, move.y);
-                childNode.pieceNumber++;
-                childNode.stateResult = checkWin(childNode.boardState, Square.SQUARE_X, childNode.pieceNumber, childNode.lastPos.x, childNode.lastPos.y);
+                childNode.state.boardState[move.x][move.y] = Square.SQUARE_X;
+                childNode.state.lastPos = new Point(move.x, move.y);
+                childNode.state.pieceNumber++;
+                childNode.state.stateResult = checkWin(childNode.state, Square.SQUARE_X);
             }
             else
             {
-                childNode.boardState[move.x][move.y] = Square.SQUARE_O;
-                childNode.lastPos = new Point(move.x, move.y);
-                childNode.pieceNumber++;
-                childNode.stateResult = checkWin(childNode.boardState, Square.SQUARE_O, childNode.pieceNumber, childNode.lastPos.x, childNode.lastPos.y);
+                childNode.state.boardState[move.x][move.y] = Square.SQUARE_O;
+                childNode.state.lastPos = new Point(move.x, move.y);
+                childNode.state.pieceNumber++;
+                childNode.state.stateResult = checkWin(childNode.state, Square.SQUARE_O);
             }
 
             children.Add(childNode);
@@ -120,22 +99,22 @@ public class TreeNode
 
     public double simulate()
     {
-        int[][] simBoardState = deepcloneArray(boardState);
-        int simCurrentTurn = (boardState[lastPos.x][lastPos.y] == Square.SQUARE_O ? Board.TURN_X : Board.TURN_O);
-        int simOppTurn = (boardState[lastPos.x][lastPos.y] == Square.SQUARE_O ? Board.TURN_O : Board.TURN_X);
-        int simStateResult = stateResult;
-        int simPieceNumber = pieceNumber;
+        State simState = new State(Util.deepcloneArray(state.boardState), state.lastPos, state.pieceNumber);
+        simState.stateResult = state.stateResult;
+
+        int simCurrentTurn = (state.boardState[state.lastPos.x][state.lastPos.y] == Square.SQUARE_O ? Board.TURN_X : Board.TURN_O);
+        int simOppTurn = (state.boardState[state.lastPos.x][state.lastPos.y] == Square.SQUARE_O ? Board.TURN_O : Board.TURN_X);
 
         //printState(simBoardState);
 
         int simValue = int.MinValue;
 
         //simulate semi-randomly (for both players) until a terminal result is achieved
-        while (simStateResult == Board.RESULT_NONE)
+        while (simState.stateResult == Board.RESULT_NONE)
         {
             Point chosenMove = null;
-            Point candidateMove1 = checkTwoPieces(simBoardState, simCurrentTurn);
-            Point candidateMove2 = checkTwoPieces(simBoardState, simOppTurn);
+            Point candidateMove1 = checkTwoPieces(simState, simCurrentTurn);
+            Point candidateMove2 = checkTwoPieces(simState, simOppTurn);
 
             if (candidateMove1 != null) //check my "two pieces"
             {
@@ -150,19 +129,20 @@ public class TreeNode
                 chosenMove = doRandomMove();
             }
 
-            if (simBoardState[chosenMove.x][chosenMove.y] == Square.SQUARE_EMPTY)
+            if (simState.boardState[chosenMove.x][chosenMove.y] == Square.SQUARE_EMPTY)
             {
 
-                simBoardState[chosenMove.x][chosenMove.y] = (simCurrentTurn == Board.TURN_X ? Square.SQUARE_X : Square.SQUARE_O);
+                simState.boardState[chosenMove.x][chosenMove.y] = (simCurrentTurn == Board.TURN_X ? Square.SQUARE_X : Square.SQUARE_O);
                 //printState(simBoardState);
-                simPieceNumber++;
-                simStateResult = checkWin(simBoardState, simCurrentTurn, simPieceNumber, chosenMove.x, chosenMove.y); //check terminal condition
+                simState.lastPos = new Point(chosenMove.x, chosenMove.y);
+                simState.pieceNumber++;
+                simState.stateResult= checkWin(simState, simCurrentTurn); //check terminal condition
                 simCurrentTurn = 3 - simCurrentTurn; //switch turn
                 simOppTurn = 3 - simOppTurn; //switch turn
             }
         }
 
-        switch (simStateResult)
+        switch (simState.stateResult)
         {
             case Board.RESULT_DRAW:
             {
@@ -217,16 +197,16 @@ public class TreeNode
     }
 
     //A heuristic to check two pieces in a row, winning a game or preventing the opponent from winning the game
-    public Point checkTwoPieces(int[][] boardState, int currentTurn)
+    public Point checkTwoPieces(State state, int currentTurn)
     {
         List<Point> moveList = new List<Point>();
 
         //check horizontally
         for (int y = 0; y < Board.BOARD_SIZE; y++)
         {
-            if (checkHor(boardState, currentTurn, 1, y) == Board.INROW - 1)
+            if (checkHor(state, currentTurn, 1, y) == Board.INROW - 1)
             {
-                Point p = getFirstEmptyPos(boardState, 0, y, 1, 0);
+                Point p = getFirstEmptyPos(state.boardState, 0, y, 1, 0);
                 if (p != null)
                 {
                     moveList.Add(p);
@@ -237,9 +217,9 @@ public class TreeNode
         //check vertical
         for (int x = 0; x < Board.BOARD_SIZE; x++)
         {
-            if (checkVer(boardState, currentTurn, x, 1) == Board.INROW - 1)
+            if (checkVer(state, currentTurn, x, 1) == Board.INROW - 1)
             {
-                Point p = getFirstEmptyPos(boardState, x, Board.BOARD_SIZE - 1, 0, -1);
+                Point p = getFirstEmptyPos(state.boardState, x, Board.BOARD_SIZE - 1, 0, -1);
                 if (p != null)
                 {
                     moveList.Add(p);
@@ -248,9 +228,9 @@ public class TreeNode
         }
 
         //check diag1
-        if (checkDiag1(boardState, currentTurn, 1, 1) == Board.INROW - 1)
+        if (checkDiag1(state, currentTurn, 1, 1) == Board.INROW - 1)
         {
-            Point p = getFirstEmptyPos(boardState, 0, Board.BOARD_SIZE - 1, 1, -1);
+            Point p = getFirstEmptyPos(state.boardState, 0, Board.BOARD_SIZE - 1, 1, -1);
             if (p != null)
             {
                 moveList.Add(p);
@@ -258,9 +238,9 @@ public class TreeNode
         }
 
         //check diag2
-        if (checkDiag2(boardState, currentTurn, 1, 1) == Board.INROW - 1)
+        if (checkDiag2(state, currentTurn, 1, 1) == Board.INROW - 1)
         {
-            Point p = getFirstEmptyPos(boardState, Board.BOARD_SIZE - 1, Board.BOARD_SIZE - 1, -1, -1);
+            Point p = getFirstEmptyPos(state.boardState, Board.BOARD_SIZE - 1, Board.BOARD_SIZE - 1, -1, -1);
             if (p != null)
             {
                 moveList.Add(p);
@@ -334,70 +314,56 @@ public class TreeNode
         return new Point(r.Next(Board.BOARD_SIZE), r.Next(Board.BOARD_SIZE));
     }
 
-    public static int[][] deepcloneArray(int[][] sourceArr)
-    {
-        int[][] clonedArr = new int[sourceArr.Length][];
-        for (int i = 0; i < clonedArr.Length; i++)
-        {
-            clonedArr[i] = new int[sourceArr[i].Length];
-            for (int j = 0; j < clonedArr[i].Length; j++)
-            {
-                clonedArr[i][j] = sourceArr[i][j];
-            }
-        }
 
-        return clonedArr;
-    }
-
-    public int checkWin(int[][] boardState, int currTurn, int pieceNumber, int lastX, int lastY)
+    public int checkWin(State state, int currTurn)
     {
         int result = Board.RESULT_NONE;
 
-        if (checkHor(boardState, currTurn, lastX, lastY) >= Board.INROW
-            || checkVer(boardState, currTurn, lastX, lastY) >= Board.INROW
-            || checkDiag1(boardState, currTurn, lastX, lastY) >= Board.INROW
-            || checkDiag2(boardState, currTurn, lastX, lastY) >= Board.INROW)
+        if (checkHor(state, currTurn, state.lastPos.x, state.lastPos.y) >= Board.INROW
+            || checkVer(state, currTurn, state.lastPos.x, state.lastPos.y) >= Board.INROW
+            || checkDiag1(state, currTurn, state.lastPos.x, state.lastPos.y) >= Board.INROW
+            || checkDiag2(state, currTurn, state.lastPos.x, state.lastPos.y) >= Board.INROW)
         {
             result = (currTurn == Square.SQUARE_X ? Board.RESULT_X : Board.RESULT_O);
         }
-        else if (pieceNumber == Board.BOARD_SIZE * Board.BOARD_SIZE)
+        else if (state.pieceNumber == Board.BOARD_SIZE * Board.BOARD_SIZE)
         {
             result = Board.RESULT_DRAW;
         }
         return result;
     }
 
-    public int checkHor(int[][] boardState, int currTurn, int lastX, int lastY)
+    public int checkHor(State state, int currTurn, int lastPosX, int lastPosY)
     {
-        return countRow(boardState, currTurn, lastX, lastY, -1, 0) + countRow(boardState, currTurn, lastX, lastY, 1, 0) - 1; //left + right
+        return countRow(state, currTurn, -1, 0) + countRow(state, currTurn, 1, 0) - 1; //left + right
     }
 
-    public int checkVer(int[][] boardState, int currTurn, int lastX, int lastY)
+    public int checkVer(State state, int currTurn, int lastPosX, int lastPosY)
     {
-        return countRow(boardState, currTurn, lastX, lastY, 0, 1) + countRow(boardState, currTurn, lastX, lastY, 0, -1) - 1; //up + down;
+        return countRow(state, currTurn, 0, 1) + countRow(state, currTurn, 0, -1) - 1; //up + down;
     }
 
-    public int checkDiag1(int[][] boardState, int currTurn, int lastX, int lastY)
+    public int checkDiag1(State state, int currTurn, int lastPosX, int lastPosY)
     {
-        return countRow(boardState, currTurn, lastX, lastY, -1, 1) + countRow(boardState, currTurn, lastX, lastY, 1, -1) - 1; //up-left + down-right;
+        return countRow(state, currTurn, -1, 1) + countRow(state, currTurn, 1, -1) - 1; //up-left + down-right;
     }
 
-    public int checkDiag2(int[][] boardState, int currTurn, int lastX, int lastY)
+    public int checkDiag2(State state, int currTurn, int lastPosX, int lastPosY)
     {
-        return countRow(boardState, currTurn, lastX, lastY, 1, 1) + countRow(boardState, currTurn, lastX, lastY, -1, -1) - 1; //up-right + down-left;
+        return countRow(state, currTurn, 1, 1) + countRow(state, currTurn, -1, -1) - 1; //up-right + down-left;
     }
 
     //counts the number of pieces in a row, given offsetX and offsetY as the counting direction
-    public int countRow(int[][] boardState, int currTurn, int initX, int initY, int offsetX, int offsetY)
+    public int countRow(State state, int currTurn, int offsetX, int offsetY)
     {
         int result = 0;
-        int currX = initX;
-        int currY = initY;
+        int currX = state.lastPos.x;
+        int currY = state.lastPos.x;
         bool rowEnded = false;
 
         while ((currX >= 0) && (currX < Board.BOARD_SIZE) && (currY >= 0) && (currY < Board.BOARD_SIZE) && (!rowEnded))
         {
-            if (boardState[currX][currY] == currTurn)
+            if (state.boardState[currX][currY] == currTurn)
             {
                 result++;
             }
