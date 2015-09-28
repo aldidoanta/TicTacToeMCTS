@@ -5,12 +5,12 @@ using System.Text;
 
 public static class Util
 {
-    public static int[][] deepcloneArray(int[][] sourceArr)
+    public static char[][] deepcloneArray(char[][] sourceArr)
     {
-        int[][] clonedArr = new int[sourceArr.Length][];
+        char[][] clonedArr = new char[sourceArr.Length][];
         for (int i = 0; i < clonedArr.Length; i++)
         {
-            clonedArr[i] = new int[sourceArr[i].Length];
+            clonedArr[i] = new char[sourceArr[i].Length];
             for (int j = 0; j < clonedArr[i].Length; j++)
             {
                 clonedArr[i][j] = sourceArr[i][j];

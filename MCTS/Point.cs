@@ -15,6 +15,13 @@ public class Point
 
     public bool isEqual(Point p)
     {
-        return ((this.x == p.x) && (this.y == p.y));
+        if (p != null)
+        {
+            return ((this.x == p.x) && (this.y == p.y));
+        }
+        else
+        {
+            return false;
+        }
     }
 }

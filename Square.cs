@@ -4,21 +4,23 @@ using System.Collections;
 public class Square : MonoBehaviour
 {
 
-    public const int SQUARE_EMPTY = 0;
-    public const int SQUARE_X = 1;
-    public const int SQUARE_O = 2;
+    public const char SQUARE_EMPTY = '0';
+    public const char SQUARE_X = '1';
+    public const char SQUARE_O = '2';
 
     public int posX, posY;
-    public int status;
+    public char status;
 
     public Board board;
     public Sprite squareemptySprite, squarexSprite, squareoSprite;
+
+    public MCTSAI mctsai;
+    public TextMesh uctValue;
 
     // Use this for initialization
     void Start()
     {
         status = SQUARE_EMPTY;
-        board = GameObject.Find("Board").GetComponent<Board>(); //TODO resolve hardcoded GameObject reference
     }
 
     // Update is called once per frame
@@ -42,6 +44,18 @@ public class Square : MonoBehaviour
                 break;
             }
         }
+
+        //update and set UCTValue visibility
+        if (status == SQUARE_EMPTY)
+        {
+            uctValue.text = string.Format("{0:0.00}", mctsai.uctValues[posX][posY]);
+            //uctValue.SetActive(true);
+        }
+        else
+        {
+            uctValue.gameObject.SetActive(false);
+        }
+
     }
 
     void OnMouseDown()
