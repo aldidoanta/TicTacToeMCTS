@@ -20,12 +20,15 @@ public class Board : MonoBehaviour
     [HideInInspector] public Point lastPos, lastOPos;
     [HideInInspector] public int result;
 
-    public Transform squarePrefab;
+    [HideInInspector] public bool isStarted;
+
+    //public Transform squarePrefab;
 
     // Use this for initialization
     void Start()
     {
-        initBoard();
+        isStarted = false;
+        //initBoard();
     }
 
     // Update is called once per frame
@@ -51,6 +54,11 @@ public class Board : MonoBehaviour
             {
                 boardState[i][j] = Square.SQUARE_EMPTY;
             }
+        }
+
+        foreach(Square square in GetComponentsInChildren<Square>())
+        {
+            square.status = Square.SQUARE_EMPTY;
         }
 
         /* Board rendering */
@@ -122,18 +130,21 @@ public class Board : MonoBehaviour
             {
                 result = RESULT_X;
                 Debug.Log("X wins");
+                StartCoroutine(showGameResult());
                 break;
             }
             case RESULT_O:
             {
                 result = RESULT_O;
                 Debug.Log("O wins");
+                StartCoroutine(showGameResult());
                 break;
             }
             case RESULT_DRAW:
             {
                 result = RESULT_DRAW;
                 Debug.Log("Draw");
+                StartCoroutine(showGameResult());
                 break;
             }
         }
@@ -183,5 +194,11 @@ public class Board : MonoBehaviour
         return (boardState[2][2] == currTurn
             && boardState[1][1] == currTurn
             && boardState[0][0] == currTurn);
+    }
+
+    public IEnumerator showGameResult() //TODO  ?
+    {
+        yield return new WaitForSeconds(3);
+        isStarted = false;
     }
 }

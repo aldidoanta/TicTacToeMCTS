@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class Square : MonoBehaviour
@@ -15,7 +16,7 @@ public class Square : MonoBehaviour
     public Sprite squareemptySprite, squarexSprite, squareoSprite;
 
     public MCTSAI mctsai;
-    public TextMesh uctValue;
+    public Text uctValue;
 
     // Use this for initialization
     void Start()
@@ -30,17 +31,17 @@ public class Square : MonoBehaviour
         {
             case SQUARE_EMPTY:
             {
-                transform.GetComponent<SpriteRenderer>().sprite = squareemptySprite;
+                transform.GetComponent<Image>().sprite = squareemptySprite;
                 break;
             }
             case SQUARE_X:
             {
-                transform.GetComponent<SpriteRenderer>().sprite = squarexSprite;
+                transform.GetComponent<Image>().sprite = squarexSprite;
                 break;
             }
             case SQUARE_O:
             {
-                transform.GetComponent<SpriteRenderer>().sprite = squareoSprite;
+                transform.GetComponent<Image>().sprite = squareoSprite;
                 break;
             }
         }
@@ -48,8 +49,14 @@ public class Square : MonoBehaviour
         //update and set UCTValue visibility
         if (status == SQUARE_EMPTY)
         {
-            uctValue.text = string.Format("{0:0.00}", mctsai.uctValues[posX][posY]);
-            //uctValue.SetActive(true);
+            if (mctsai.uctValues[posX][posY] == double.MinValue)
+            {
+                uctValue.text = "?"; //So the double.MinValue will not be shown
+            }
+            else
+            {
+                uctValue.text = string.Format("{0:0.00}", mctsai.uctValues[posX][posY]);
+            }
         }
         else
         {
@@ -58,9 +65,12 @@ public class Square : MonoBehaviour
 
     }
 
-    void OnMouseDown()
+    public void selectSquare()
     {
-        board.selectSquare(posX, posY);
+        if (board.isStarted)
+        {
+            board.selectSquare(posX, posY);
+        }
     }
 
 }
