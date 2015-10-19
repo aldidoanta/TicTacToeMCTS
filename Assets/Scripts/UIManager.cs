@@ -17,10 +17,13 @@ public class UIManager : MonoBehaviour
 
     public GameObject boardUI;
     public Image SwitchX, SwitchO;
+    public bool isXSelected, isCoroutineStarted;
 
     // Use this for initialization
     void Start()
     {
+        isCoroutineStarted = false;
+
         switchSideToX(false);
         updateIterationNumberFromSlider(); //init MCTSIterationInput text value
     }
@@ -32,6 +35,19 @@ public class UIManager : MonoBehaviour
         updateTextStatus();
 
         boardUI.SetActive(!board.isStarted); //readability?
+
+        //side seletion UI
+        if ((boardUI.activeSelf) && (!isCoroutineStarted))
+        {
+            if (isXSelected)
+            {
+                StartCoroutine(scaleUpDown(SwitchX));
+            }
+            else
+            {
+                StartCoroutine(scaleUpDown(SwitchO));
+            }
+        }
     }
 
     /*Functions related to UI*/
@@ -56,17 +72,19 @@ public class UIManager : MonoBehaviour
         {
             SwitchX.color = selectedCol;
             SwitchO.color = deselectedCol;
+            isXSelected = true;
             MCTSAI.myTurn = Board.TURN_O; //choose the opposite side for the AI
         }
         else //choose O
         {
             SwitchO.color = selectedCol;
             SwitchX.color = deselectedCol;
+            isXSelected = false;
             MCTSAI.myTurn = Board.TURN_X;
         }
     }
 
-    void updateTextStatus() //TODO add win/lose/draw event
+    void updateTextStatus()
     {
         if (board.isStarted)
         {
@@ -127,5 +145,34 @@ public class UIManager : MonoBehaviour
 
         mctsai.iterationNumber =  iterNumber;
         MCTSIterationSlider.value = iterNumber;
+    }
+
+    public IEnumerator scaleUpDown(Image img)
+    {
+        isCoroutineStarted = true;
+
+        //reset scale
+        SwitchX.rectTransform.localScale = Vector3.one;
+        SwitchO.rectTransform.localScale = Vector3.one;
+
+        //scale up
+        while (img.rectTransform.localScale.x < 1.3)
+        {
+            float newX = img.rectTransform.localScale.x + 0.025f;
+            float newY = img.rectTransform.localScale.y + 0.025f;
+            img.rectTransform.localScale = new Vector3(newX, newY, 1);
+            yield return null;
+        }
+
+        //scale down
+        while (img.rectTransform.localScale.x > 1)
+        {
+            float newX = img.rectTransform.localScale.x - 0.025f;
+            float newY = img.rectTransform.localScale.y - 0.025f;
+            img.rectTransform.localScale = new Vector3(newX, newY, 1);
+            yield return null;
+        }
+
+        isCoroutineStarted = false;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class Board : MonoBehaviour
@@ -19,6 +20,7 @@ public class Board : MonoBehaviour
     [HideInInspector] public char currentTurn;
     [HideInInspector] public Point lastPos, lastOPos;
     [HideInInspector] public int result;
+    [HideInInspector] public Point[] winningPoints;
 
     [HideInInspector] public bool isStarted;
 
@@ -56,9 +58,13 @@ public class Board : MonoBehaviour
             }
         }
 
+        //init winningPoints
+        winningPoints = new Point[3];
+
         foreach(Square square in GetComponentsInChildren<Square>())
         {
             square.status = Square.SQUARE_EMPTY;
+            square.GetComponent<Image>().color = Color.white;
         }
 
         /* Board rendering */
@@ -170,35 +176,87 @@ public class Board : MonoBehaviour
 
     public bool isHor(char currTurn, int lastY)
     {
-        return (boardState[0][lastY] == currTurn
-            && boardState[1][lastY] == currTurn
-            && boardState[2][lastY] == currTurn);
+        bool result = boardState[0][lastY] == currTurn
+                        && boardState[1][lastY] == currTurn
+                        && boardState[2][lastY] == currTurn;
+        if (result)
+        {
+            winningPoints[0] = new Point(0, lastY);
+            winningPoints[1] = new Point(1, lastY);
+            winningPoints[2] = new Point(2, lastY);
+        }
+        return result;
     }
 
     public bool isVer(char currTurn, int lastX)
     {
-        return (boardState[lastX][0] == currTurn
-            && boardState[lastX][1] == currTurn
-            && boardState[lastX][2] == currTurn);
+        bool result = boardState[lastX][0] == currTurn
+                        && boardState[lastX][1] == currTurn
+                        && boardState[lastX][2] == currTurn;
+        if (result)
+        {
+            winningPoints[0] = new Point(lastX, 0);
+            winningPoints[1] = new Point(lastX, 1);
+            winningPoints[2] = new Point(lastX, 2);
+        }
+        return result;
     }
 
     public bool isDiag1(char currTurn)
     {
-        return (boardState[0][2] == currTurn
-            && boardState[1][1] == currTurn
-            && boardState[2][0] == currTurn);
+        bool result = boardState[0][2] == currTurn
+                        && boardState[1][1] == currTurn
+                        && boardState[2][0] == currTurn;
+        if (result)
+        {
+            winningPoints[0] = new Point(0, 2);
+            winningPoints[1] = new Point(1, 1);
+            winningPoints[2] = new Point(2, 0);
+        }
+        return result;
     }
 
     public bool isDiag2(char currTurn)
     {
-        return (boardState[2][2] == currTurn
-            && boardState[1][1] == currTurn
-            && boardState[0][0] == currTurn);
+        bool result = boardState[2][2] == currTurn
+                        && boardState[1][1] == currTurn
+                        && boardState[0][0] == currTurn;
+        if (result)
+        {
+            winningPoints[0] = new Point(2, 2);
+            winningPoints[1] = new Point(1, 1);
+            winningPoints[2] = new Point(0, 0);
+        }
+        return result;
     }
 
-    public IEnumerator showGameResult() //TODO  ?
+    public IEnumerator showGameResult() //TODO visualize row
     {
-        yield return new WaitForSeconds(3);
+        if(result != RESULT_DRAW)
+        {
+            foreach (Square square in GetComponentsInChildren<Square>())
+            {
+                for (int i = 0; i < winningPoints.Length; i++)
+                {
+                    if ((square.posX == winningPoints[i].x) && (square.posY == winningPoints[i].y))
+                    {
+                        StartCoroutine(turnYellow(square.GetComponent<Image>()));
+                    }
+                }
+            }
+        }
+        yield return new WaitForSeconds(2.75f);
         isStarted = false;
+    }
+
+    public IEnumerator turnYellow(Image img)
+    {
+        float blue = img.color.b;
+        while (blue > 0)
+        {
+            blue -= 0.1f;
+            img.color = new Color(img.color.r, img.color.g, blue);
+            yield return null;
+        }
     }
 }

@@ -162,9 +162,9 @@ MonoBehaviour:
   posY: 0
   status: 48
   board: {fileID: 0}
-  squareemptySprite: {fileID: 21300000, guid: cee379a0930628f40b04ab127a0c0a74, type: 3}
-  squarexSprite: {fileID: 21300000, guid: e2664205288688749ab6fb2a22ff2360, type: 3}
-  squareoSprite: {fileID: 21300000, guid: 219a10ee237ff4443ac0e46dc0e1f145, type: 3}
+  squareemptySprite: {fileID: 21300000, guid: 37021a3f6f86c144ab789b8aded1aaea, type: 3}
+  squarexSprite: {fileID: 21300000, guid: 8f25bf016e1e99447a2110a10933a832, type: 3}
+  squareoSprite: {fileID: 21300000, guid: 589912e3885796847af3f644d30c9b43, type: 3}
   mctsai: {fileID: 0}
   uctValue: {fileID: 11417518}
 --- !u!222 &22226998
@@ -220,7 +220,22 @@ Prefab:
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: squareemptySprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 37021a3f6f86c144ab789b8aded1aaea,
+        type: 3}
+    - target: {fileID: 0}
+      propertyPath: squarexSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 8f25bf016e1e99447a2110a10933a832,
+        type: 3}
+    - target: {fileID: 0}
+      propertyPath: squareoSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 589912e3885796847af3f644d30c9b43,
+        type: 3}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 179482}
