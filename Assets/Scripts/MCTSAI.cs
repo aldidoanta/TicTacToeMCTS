@@ -52,7 +52,7 @@ public class MCTSAI : MonoBehaviour
                 }
                 watch.Stop();
                 var elapsedMs = watch.ElapsedMilliseconds;
-                UnityEngine.Debug.Log("time elapsed for iterateMCTS() = " + elapsedMs + " ms");
+                //UnityEngine.Debug.Log("time elapsed for iterateMCTS() = " + elapsedMs + " ms");
 
                 tn = tn.select();
 

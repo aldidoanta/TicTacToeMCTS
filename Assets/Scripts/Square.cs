@@ -18,6 +18,8 @@ public class Square : MonoBehaviour
     public MCTSAI mctsai;
     public Text uctValue;
 
+    public AudioPlayer audioplayer;
+
     // Use this for initialization
     void Start()
     {
@@ -68,8 +70,10 @@ public class Square : MonoBehaviour
 
     public void selectSquare()
     {
-        if (board.isStarted)
+        if ((board.isStarted) && (!board.isLocked))
         {
+            //play sound
+            audioplayer.playSound(audioplayer.sounds[audioplayer.SQUARE]);
             board.selectSquare(posX, posY);
         }
     }

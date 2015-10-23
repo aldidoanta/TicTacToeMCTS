@@ -23,6 +23,9 @@ public class Board : MonoBehaviour
     [HideInInspector] public Point[] winningPoints;
 
     [HideInInspector] public bool isStarted;
+    [HideInInspector] public bool isLocked;
+
+    public AudioPlayer audioplayer;
 
     //public Transform squarePrefab;
 
@@ -30,6 +33,7 @@ public class Board : MonoBehaviour
     void Start()
     {
         isStarted = false;
+        isLocked = false;
         //initBoard();
     }
 
@@ -98,7 +102,7 @@ public class Board : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("selected square is not empty");
+                    //Debug.Log("selected square is not empty");
                 }
                 break;
             }
@@ -135,21 +139,21 @@ public class Board : MonoBehaviour
             case RESULT_X:
             {
                 result = RESULT_X;
-                Debug.Log("X wins");
+                //Debug.Log("X wins");
                 StartCoroutine(showGameResult());
                 break;
             }
             case RESULT_O:
             {
                 result = RESULT_O;
-                Debug.Log("O wins");
+                //Debug.Log("O wins");
                 StartCoroutine(showGameResult());
                 break;
             }
             case RESULT_DRAW:
             {
                 result = RESULT_DRAW;
-                Debug.Log("Draw");
+                //Debug.Log("Draw");
                 StartCoroutine(showGameResult());
                 break;
             }
@@ -230,8 +234,9 @@ public class Board : MonoBehaviour
         return result;
     }
 
-    public IEnumerator showGameResult() //TODO visualize row
+    public IEnumerator showGameResult()
     {
+        isLocked = true;
         if(result != RESULT_DRAW)
         {
             foreach (Square square in GetComponentsInChildren<Square>())
@@ -245,8 +250,20 @@ public class Board : MonoBehaviour
                 }
             }
         }
+
+        //play sound
+        if(result == RESULT_DRAW)
+        {
+            audioplayer.playSound(audioplayer.sounds[audioplayer.DRAW]);
+        }
+        else
+        {
+            audioplayer.playSound(audioplayer.sounds[audioplayer.WIN]);
+        }
+
         yield return new WaitForSeconds(2.75f);
         isStarted = false;
+        isLocked = false;
     }
 
     public IEnumerator turnYellow(Image img)

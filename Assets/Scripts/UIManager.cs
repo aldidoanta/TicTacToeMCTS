@@ -11,6 +11,7 @@ public class UIManager : MonoBehaviour
     public Text statusText;
 
     //Options UI
+    public Toggle soundToggle;
     public Toggle showUCTScoreToggle;
     public Slider MCTSIterationSlider;
     public InputField MCTSIterationInput;
@@ -18,6 +19,8 @@ public class UIManager : MonoBehaviour
     public GameObject boardUI;
     public Image SwitchX, SwitchO;
     public bool isXSelected, isCoroutineStarted;
+
+    public AudioPlayer audioplayer;
 
     // Use this for initialization
     void Start()
@@ -54,6 +57,9 @@ public class UIManager : MonoBehaviour
 
     public void playNewGame() //used by PlayButton
     {
+        //play sound
+        audioplayer.playSound(audioplayer.sounds[audioplayer.CLICK]);
+
         board.isStarted = true;
 
         board.initBoard();
@@ -82,6 +88,9 @@ public class UIManager : MonoBehaviour
             isXSelected = false;
             MCTSAI.myTurn = Board.TURN_X;
         }
+
+        //play sound
+        audioplayer.playSound(audioplayer.sounds[audioplayer.SQUARE]);
     }
 
     void updateTextStatus()
@@ -120,8 +129,24 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void setShowUCTOption(bool UCTOption) //used by ShowUCTOption_Toggle
+    public void toggleSound()
     {
+        bool isSound = soundToggle.isOn;
+        if (isSound)
+        {
+            audioplayer.audiosource.volume = 1.0f;
+        }
+        else
+        {
+            audioplayer.audiosource.volume = 0f;
+        }
+        //play sound
+        audioplayer.playSound(audioplayer.sounds[audioplayer.CLICK]);
+    }
+
+    public void setShowUCTOption() //used by ShowUCTOption_Toggle
+    {
+        bool UCTOption = showUCTScoreToggle.isOn;
         foreach (Square square in board.GetComponentsInChildren<Square>())
         {
             if (square.status == Square.SQUARE_EMPTY)
@@ -129,6 +154,9 @@ public class UIManager : MonoBehaviour
                 square.uctValue.gameObject.SetActive(UCTOption);
             }
         }
+
+        //play sound
+        audioplayer.playSound(audioplayer.sounds[audioplayer.CLICK]);
     }
 
     public void updateIterationNumberFromSlider() //TODO interactivity
@@ -137,6 +165,9 @@ public class UIManager : MonoBehaviour
 
         mctsai.iterationNumber = iterNumber;
         MCTSIterationInput.text = iterNumber.ToString();
+
+        //play sound
+        //audioplayer.playSound(audioplayer.sounds[audioplayer.CLICK]);
     }
 
     public void updateIterationNumberFromText() //TODO interactivity
