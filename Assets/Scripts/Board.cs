@@ -62,7 +62,6 @@ public class Board : MonoBehaviour
             }
         }
 
-        //init winningPoints
         winningPoints = new Point[3];
 
         foreach(Square square in GetComponentsInChildren<Square>())

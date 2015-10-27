@@ -16,6 +16,11 @@ public class UIManager : MonoBehaviour
     public Slider MCTSIterationSlider;
     public InputField MCTSIterationInput;
 
+    //"About" panel
+    public GameObject aboutPanel;
+    public bool isAboutPanelShown;
+
+    //Side selection before the game begins
     public GameObject boardUI;
     public Image SwitchX, SwitchO;
     public bool isXSelected, isCoroutineStarted;
@@ -25,6 +30,7 @@ public class UIManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        isAboutPanelShown = false;
         isCoroutineStarted = false;
 
         switchSideToX(false);
@@ -37,7 +43,7 @@ public class UIManager : MonoBehaviour
         //show current turn
         updateTextStatus();
 
-        boardUI.SetActive(!board.isStarted); //readability?
+        boardUI.SetActive(!board.isStarted);
 
         //side seletion UI
         if ((boardUI.activeSelf) && (!isCoroutineStarted))
@@ -97,6 +103,7 @@ public class UIManager : MonoBehaviour
     {
         if (board.isStarted)
         {
+            statusText.fontSize = 55;
             if (board.result == Board.RESULT_NONE)
             {
                 statusText.text = (board.currentTurn == Board.TURN_X ? "X's turn" : "O's turn");
@@ -125,7 +132,8 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            statusText.text = ("Choose side");
+            statusText.text = ("Choose side\n(X always goes first)");
+            statusText.fontSize = 33;
         }
     }
 
@@ -176,6 +184,16 @@ public class UIManager : MonoBehaviour
 
         mctsai.iterationNumber =  iterNumber;
         MCTSIterationSlider.value = iterNumber;
+    }
+
+    public void showAboutPanel(bool isShown)
+    {
+        aboutPanel.SetActive(isShown);
+    }
+
+    public void openURL(string url)
+    {
+        Application.OpenURL(url);
     }
 
     public IEnumerator scaleUpDown(Image img)

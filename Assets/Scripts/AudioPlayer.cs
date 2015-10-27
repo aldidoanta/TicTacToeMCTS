@@ -14,18 +14,6 @@ public class AudioPlayer : MonoBehaviour
 
     public AudioSource audiosource;
 
-    // Use this for initialization
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     //play soundeffect clip
     public void playSound(AudioClip clip)
     {

@@ -2,6 +2,10 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
+/*
+ * This code was modified from Simon Lucas' implementation of MCTS
+ * http://mcts.ai/code/java.html
+ */
 public class TreeNode
 {
     static System.Random r = new System.Random();
@@ -81,6 +85,7 @@ public class TreeNode
         double bestValue = Double.MinValue;
         foreach (TreeNode c in children)
         {
+            //UCT value calculation
             double uctValue =
                     c.totValue / (c.nVisits + epsilon) +
                             Math.Sqrt(Math.Log(nVisits + 1) / (c.nVisits + epsilon)) +

@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Collections;
 
-//First attempt - Random movement
 public class MCTSAI : MonoBehaviour
 {
     public static char myTurn = Board.TURN_X;
@@ -51,7 +50,7 @@ public class MCTSAI : MonoBehaviour
                     tn.iterateMCTS();
                 }
                 watch.Stop();
-                var elapsedMs = watch.ElapsedMilliseconds;
+                //var elapsedMs = watch.ElapsedMilliseconds;
                 //UnityEngine.Debug.Log("time elapsed for iterateMCTS() = " + elapsedMs + " ms");
 
                 tn = tn.select();
@@ -74,7 +73,6 @@ public class MCTSAI : MonoBehaviour
     public void initAI()
     {
         tn = new TreeNode(new State(board.boardState, board.currentTurn, board.lastPos, board.lastOPos, board.pieceNumber)); //create a new TreeNode
-        //iterationNumber = 10000; //TODO set in GUI
 
         uctValues = new double[Board.BOARD_SIZE][];
         for (int i = 0; i < uctValues.Length; i++)
