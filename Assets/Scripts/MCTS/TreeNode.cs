@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 /*
  * This code was modified from Simon Lucas' implementation of MCTS
- * http://mcts.ai/code/java.html
+ * https://web.archive.org/web/20151213012727/http://mcts.ai/code/java.html
  */
 public class TreeNode
 {
